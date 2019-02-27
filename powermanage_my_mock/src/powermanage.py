@@ -1,14 +1,20 @@
-from flask import Flask, Response
+from bottle import route, run, response, request
 import xmltodict
 
-app = Flask(__name__)
-
-@app.route("/scripts/update.php", methods=['GET'])
+@route("/scripts/update.php")
 def keep_alive():
-    return Response("status=0&ka_time=50&allow=0", mimetype='text/plain')
+    response.content_type = 'text/plain; charset=utf-8'
+    return "status=0&ka_time=50&allow=0"
 
 
-@app.route("/scripts/notify.php", methods=['POST'])
+@route("/scripts/notify.php", method='POST')
 def event_notified():
-    xmltodict.parse(request.data)['xml']['From']
+    raw_body = request.body.read()
+    index_value_sent = xmltodict.parse(raw_body)['notify']['index']
     return "hola mundo"
+
+@route('/hello')
+def hello():
+    return "Hello World!"
+
+run(host='0.0.0.0', port=8080, debug=True)
