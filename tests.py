@@ -6,21 +6,32 @@ class TestStringMethods(unittest.TestCase):
 
     def test_keepalive_method(self):
         r = requests.get('http://{}:{}/scripts/update.php'.format(self.ip, self.port), timeout=1)
+
         # test the response status
         self.assertTrue(r.status_code == 200,
                         "The status code {} was not expected".format(
                             r.status_code
                         )
         )
+
         # test the response contains the expected values
-        self.assertTrue('status=0' in r.text)
-        self.assertTrue('ka_time=' in r.text)
-        self.assertTrue('allow=' in r.text)
+        self.assertTrue('status=0' in r.text,
+                        "The response should contains the param 'status'"
+        )
+        self.assertTrue('ka_time=' in r.text,
+                        "The response should contains the param 'ka_time'"
+        )
+        self.assertTrue('allow=' in r.text,
+                        "The response should contains the param 'allow'"
+        )
+
         # test the response contains the expected headers
-        self.assertTrue('Content-Type' in r.headers)
+        self.assertTrue('Content-Type' in r.headers,
+                        "The response should contains the 'Content-Type' header."
+        )
         self.assertTrue(
             r.headers['Content-Type'].lower() == 'text/plain; charset=utf-8',
-            "The header[Content-Type] = {} is not valid".format(
+            "The header[Content-Type] = {} is not the expected".format(
                 r.headers['Content-Type']
             )
         )
@@ -53,15 +64,27 @@ class TestStringMethods(unittest.TestCase):
                    </notify>""".format(index_code)
 
         r = requests.post('http://{}:{}/scripts/notify.php'.format(self.ip, self.port), data=payload, timeout=1)
+
         # test the response status
-        self.assertTrue(r.status_code == 200)
+        self.assertTrue(r.status_code == 200,
+                        "The 200 status code was expected instead {}".format(r.status_code)
+        )
+
         # test that the response does not contains php errors
-        self.assertTrue('this will throw an Error in a future version of PHP' not in r.text)
+        self.assertTrue('this will throw an Error in a future version of PHP' not in r.text,
+                        'We expect no PHP warnings at the response'
+        )
+
         # test the response contains the expected values
-        self.assertTrue('<index>{}</index>'.format(index_code) in r.text)
+        self.assertTrue('<index>{}</index>'.format(index_code) in r.text,
+                        "The same index value sent at request was expected at the response"
+        )
+
         # test the headers received are correct
         # print(r.headers)
-        self.assertTrue(r.headers['Content-Type'] == 'text/xml;charset=UTF-8')
+        self.assertTrue(r.headers['Content-Type'] == 'text/xml;charset=UTF-8',
+                        "The 'Content-Type' header = {} was not the expected".format(r.headers['Content-Type'])
+        )
 
 
 if __name__ == '__main__':
