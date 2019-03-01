@@ -10,7 +10,8 @@ Some more info on [Voksenlia](http://voksenlia.net/powerlink/) and on [securityb
 
 A guy has written a couple scripts to mimmic the visonic server in order to avoid it. The documentation is [available for download](https://www.dropbox.com/s/s2zkjko0ihhfvcm/Configuring%20an%20in-house%20notification%20service%20for%20Visonic%20PowerLink2.pdf?dl=0).
 
-To test all readings I have lauched a docker container with the previously commented scripts.
+# Main idea
+I pretend to build a docker container to run a web server to act as the original centralised event server, in order to avoid use one belonging to a company. This way I can maintain my own infrastructure to get the notifications as I want and without costs.
 
 # Use #
 To instantiate the server and listen your Powermaster:
