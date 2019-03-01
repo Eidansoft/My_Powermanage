@@ -12,7 +12,12 @@ A guy has written a couple scripts to mimmic the visonic server in order to avoi
 
 To test all readings I have lauched a docker container with the previously commented scripts.
 
+# Use #
+To instantiate the server and listen your Powermaster:
 
+```docker run -ti -p 8080:8080 --rm eidansoft/powermanage```
+
+# Use of the old code #
 To create my docker image:
 
 ```docker build powermanage_my_mock/ -t powermaster```
