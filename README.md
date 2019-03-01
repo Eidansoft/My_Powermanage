@@ -18,10 +18,10 @@ To instantiate the server and listen your Powermaster:
 ```docker run -ti -p 8080:8080 --rm eidansoft/powermanage```
 
 # Use of the old code #
-To create my docker image:
+To create the docker image with the old PHP code:
 
-```docker build powermanage_my_mock/ -t powermaster```
+```docker build powermanage_simply_mock/ -t oldpowermanage```
 
 To launch the service:
 
-```docker run -ti -p 8080:5000 --rm powermaster```
+```docker run -ti -p 8080:80 --rm oldpowermanage```
