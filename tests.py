@@ -82,7 +82,7 @@ class TestStringMethods(unittest.TestCase):
 
         # test the headers received are correct
         # print(r.headers)
-        self.assertTrue(r.headers['Content-Type'] == 'text/xml;charset=UTF-8',
+        self.assertTrue(r.headers['Content-Type'].lower() == 'text/xml;charset=utf-8',
                         "The 'Content-Type' header = {} was not the expected".format(r.headers['Content-Type'])
         )
 

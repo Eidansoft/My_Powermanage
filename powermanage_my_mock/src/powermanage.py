@@ -11,10 +11,13 @@ def keep_alive():
 def event_notified():
     raw_body = request.body.read()
     index_value_sent = xmltodict.parse(raw_body)['notify']['index']
-    return "hola mundo"
+    response.content_type = 'text/xml;charset=utf-8'
+    return "<?xml version '1.0'?> <index>{}</index>".format(index_value_sent)
+
 
 @route('/hello')
 def hello():
     return "Hello World!"
+
 
 run(host='0.0.0.0', port=8080, debug=True)
