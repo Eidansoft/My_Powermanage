@@ -17,8 +17,11 @@ def event_notified():
     return "<?xml version '1.0'?> <index>{}</index>".format(index_value_sent)
 
 
-@route('/hello')
-def hello():
+# @route('/hello')
+@route("/<url:re:.+>")
+def hello(url):
+    print("CAPTURADA GENERICA A: {}".format(url))
+    log(request)
     return "Hello World!"
 
 
