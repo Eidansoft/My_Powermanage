@@ -4,4 +4,4 @@ RUN pip3 install --no-cache-dir bottle xmltodict
 
 COPY src /usr/bin
 
-CMD python /usr/bin/powermanage.py
+CMD python -u /usr/bin/powermanage.py
