@@ -1,8 +1,7 @@
 import pytest
 from os import environ
-
+from pymongo import MongoClient
 from configparser import ConfigParser
-from pymongo import MongoClient, errors
 
 
 def get_appconfig():
@@ -15,18 +14,14 @@ def mongo_client(uri=None, db_name=None):
     assert uri, '[ERROR] The uri is mandantory.'
     assert db_name, '[ERROR] The db_name is mandatory.'
 
-    try:
-        mongo_client = MongoClient(uri, serverSelectionTimeoutMS=3000)
-    except errors.ServerSelectionTimeoutError:
-        print('I got an error selecting the mongo server to use, are you sure that the configuration is set, and that the MongoDB IP white list include your current IP?')
+    mongo_client = MongoClient(uri, serverSelectionTimeoutMS=3000)
+
     db = mongo_client[db_name]
     return db
 
 
 @pytest.fixture
 def prod_config():
-    import ipdb; ipdb.set_trace(context=21)
-
     app_config = get_appconfig()
     config = {}
     config['HOST'] = app_config['PROD']['HOST']
