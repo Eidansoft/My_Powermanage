@@ -1,5 +1,6 @@
-import os
 import configparser
+from os import environ
+
 
 from pymongo import MongoClient
 
@@ -7,7 +8,7 @@ class Mongo_Connector():
     def __init__(self, config_name=None):
         # read the config
         self.config = configparser.ConfigParser()
-        self.config.read(os.path.abspath(os.path.join("server_config.ini")))
+        self.config.read(environ['CONF_FILE'])
 
         assert config_name in self.config.sections(), "[ERROR] The config_name provided '{}' is not valid, the valid ones are: '{}'.".format(config_name, self.config.sections())
 

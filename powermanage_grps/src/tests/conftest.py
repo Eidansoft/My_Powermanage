@@ -1,5 +1,5 @@
 import pytest
-import os
+from os import environ
 
 from configparser import ConfigParser
 from pymongo import MongoClient, errors
@@ -7,7 +7,7 @@ from pymongo import MongoClient, errors
 
 def get_appconfig():
     app_config = ConfigParser()
-    app_config.read(os.path.abspath(os.path.join("server_config.ini")))
+    app_config.read(environ['CONF_FILE'])
     return app_config
 
 
@@ -25,6 +25,8 @@ def mongo_client(uri=None, db_name=None):
 
 @pytest.fixture
 def prod_config():
+    import ipdb; ipdb.set_trace(context=21)
+
     app_config = get_appconfig()
     config = {}
     config['HOST'] = app_config['PROD']['HOST']

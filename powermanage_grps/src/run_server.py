@@ -1,7 +1,10 @@
 import logging
 import sys
 import socketserver as SocketServer
+import configparser
+from os import environ
 from mongo_connector import Mongo_Connector
+
 
 logging.basicConfig(level=logging.DEBUG,
                     format='%(name)s: %(message)s',
@@ -90,17 +93,14 @@ class EchoServer(SocketServer.TCPServer):
         return SocketServer.TCPServer.close_request(self, request_address)
 
 if __name__ == '__main__':
-    import os
-    import configparser
-
+    # read the config
     config = configparser.ConfigParser()
-    config.read(os.path.abspath(os.path.join("server_config.ini")))
-
+    config.read(environ['CONF_FILE'])
     address = (config['PROD']['HOST'], int(config['PROD']['PORT']))
     server = EchoServer(address, EchoRequestHandler)
-    ip, port = server.server_address # find out what port we were given
+    # ip, port = server.server_address # find out what port we were given
     logger = logging.getLogger('server')
-    logger.info('Server on %s:%s', ip, port)
+    logger.info('Server on %s:%s', config['PROD']['HOST'], config['PROD']['PORT'])
     # t = threading.Thread(target=server.serve_forever)
     # t.setDaemon(True) # don't hang on exit
     # t.start()
