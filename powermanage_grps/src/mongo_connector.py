@@ -1,4 +1,5 @@
 import configparser
+from datetime import datetime
 from os import environ
 
 
@@ -21,4 +22,7 @@ class Mongo_Connector():
     def save_raw_request(self, raw_data=None):
         assert raw_data, "[ERROR] No raw data provided to save it."
         # save the raw data at the events collection
-        self.db.events.insert_one({'raw_request': raw_data})
+        return self.db.events.insert_one({
+            'raw_request': raw_data,
+            'utc_datetime': datetime.utcnow()
+        })
