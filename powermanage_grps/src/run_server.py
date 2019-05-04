@@ -30,16 +30,16 @@ class EchoRequestHandler(SocketServer.BaseRequestHandler):
         self.logger.debug('handle')
 
         # read the request
-        data = self.request.recv(1024).decode('utf-8')
+        data_binary = self.request.recv(1024)
 
-        self.logger.debug('received -> "%s"', data)
-        self.logger.debug('responding back -> "%s"', data)
+        self.logger.debug('received -> "%s"', data_binary)
+        self.logger.debug('responding back -> "%s"', data_binary)
 
         # Echo the back to the client
-        self.request.send(data.encode('utf-8'))
+        self.request.send(data_binary)
 
         # save the request for futher analisys
-        self.save_raw_request(data)
+        self.save_raw_request(data_binary)
 
         return
 
