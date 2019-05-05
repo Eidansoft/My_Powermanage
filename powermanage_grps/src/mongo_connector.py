@@ -65,9 +65,9 @@ class Mongo_Connector():
         res['ENCRYPTED_bool'] = partes[1].decode('ascii').startswith('*')
         res['SEQ_str'] = ''.join([chr(i) for i in SEQ])
         res['SEQ_int'] = int(''.join([chr(i) for i in SEQ]))
-        res['R_bin'] = R
-        res['L_bin'] = L
-        res['ACCT_bin'] = ACCT
-        res['ENCRYPTED_ascii'] = encrypted_data
+        res['R_ascci'] = R.decode('ascii')
+        res['L_ascii'] = L.decode('ascii')
+        res['ACCT_ascii'] = ACCT.decode('ascii')
+        res['ENCRYPTED_ascii'] = encrypted_data.decode('ascii')
 
         return res

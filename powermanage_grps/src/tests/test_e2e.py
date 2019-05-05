@@ -93,6 +93,24 @@ def test_server_split_properly_the_ENCRYPTED_DATA(prod_config):
 
     element = prod_config['DB_CLIENT'].events.find_one({"raw_request": data})
     assert element , 'A new event was expected to be saved at the db containing the request.'
-    assert element['ENCRYPTED_ascii'] == b'592A2F1303F2E4F14E2925C265659E5154'
+    assert element['ENCRYPTED_ascii'] == '592A2F1303F2E4F14E2925C265659E5154'
+    # In order to try to not corrupt data on the db, we delete that new created document
+    prod_config['DB_CLIENT'].events.delete_one({"_id": element['_id']})
+
+
+@pytest.mark.e2e
+def test_server_split_properly_the_L(prod_config):
+    # Send the data
+    data = b'\n:D009F"*ADM-CID"0002R0L0A17D6#000007[212BBAC067455B0DB64B97FEAC433B06'
+    response = send_and_get_response(prod_config, data)
+
+    # Checks
+    assert data == response, "[ERROR] The response returned by the server is not equals than the request sent."
+
+    time.sleep(2) # wait a bit before to check the db in order to let the server finish the db tasks
+
+    element = prod_config['DB_CLIENT'].events.find_one({"raw_request": data})
+    assert element , 'A new event was expected to be saved at the db containing the request.'
+    assert element['L_ascii'] == '0A17D6'
     # In order to try to not corrupt data on the db, we delete that new created document
     prod_config['DB_CLIENT'].events.delete_one({"_id": element['_id']})
