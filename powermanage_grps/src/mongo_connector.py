@@ -63,7 +63,7 @@ class Mongo_Connector():
         res['ID_str'] = partes[1].decode('ascii')
         res['ENCRYPTED_bool'] = partes[1].decode('ascii').startswith('*')
         res['SEQ_str'] = ''.join([chr(i) for i in SEQ])
-        res['SEQ_int'] = int(''.join([chr(i) for i in SEQ])))
+        res['SEQ_int'] = int(''.join([chr(i) for i in SEQ]))
         res['R_bin'] = R
         res['L_bin'] = L
         res['ACCT_bin'] = ACCT
