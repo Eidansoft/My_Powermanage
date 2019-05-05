@@ -26,7 +26,7 @@ class Mongo_Connector():
         if raw_data[0] == 10:
             # split the request only if the first character is the expected 0x0a
             try:
-                res = split_raw_request_into_SIA_fields(raw_data)
+                res = self.split_raw_request_into_SIA_fields(raw_data)
             except:
                 res = {'error': 'Request split process failed with a "{}" exception.'.format(sys.exc_info()[0])}
         else:
@@ -34,6 +34,7 @@ class Mongo_Connector():
 
         res['utc_datetime'] = datetime.utcnow()
         res['raw_request'] = raw_data
+
         return self.db.events.insert_one(res)
 
 
