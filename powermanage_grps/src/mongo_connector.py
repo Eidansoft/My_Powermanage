@@ -20,7 +20,7 @@ class Mongo_Connector():
 
         return
 
-    def save_raw_request(self, raw_data=None):
+    def save_raw_request(self, client_ip, raw_data=None):
         assert raw_data, "[ERROR] No raw data provided to save it."
         # save the raw data at the events collection
         if raw_data[0] == 10:
@@ -33,6 +33,7 @@ class Mongo_Connector():
             res = {'error': 'Request does not start with the expected 0x0a character.'}
 
         res['utc_datetime'] = datetime.utcnow()
+        res['request_ip'] = client_ip
         res['raw_request'] = raw_data
 
         return self.db.events.insert_one(res)

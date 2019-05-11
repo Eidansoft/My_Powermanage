@@ -15,6 +15,7 @@ class EchoRequestHandler(SocketServer.BaseRequestHandler):
     def __init__(self, request, client_address, server):
         self.logger = logging.getLogger('EchoRequestHandler')
         self.logger.debug('__init__')
+        self.client_ip = client_address[0]
         SocketServer.BaseRequestHandler.__init__(self, request, client_address, server)
         return
 
@@ -24,7 +25,7 @@ class EchoRequestHandler(SocketServer.BaseRequestHandler):
 
     def save_raw_request(self, data):
         mongo_client = Mongo_Connector('PROD')
-        mongo_client.save_raw_request(data)
+        mongo_client.save_raw_request(self.client_ip, data)
 
     def handle(self):
         self.logger.debug('handle')

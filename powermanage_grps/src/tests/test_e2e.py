@@ -114,3 +114,58 @@ def test_server_split_properly_the_L(prod_config):
     assert element['L_ascii'] == '0A17D6'
     # In order to try to not corrupt data on the db, we delete that new created document
     prod_config['DB_CLIENT'].events.delete_one({"_id": element['_id']})
+
+
+@pytest.mark.e2e
+def test_the_max_length_of_the_request(prod_config):
+    # Send the data
+    data = b'\n\xb1\x81005A"*VIS-OIP"0014R0L0#0A17D6[592A2F1303F2E4F14E2925C265659E5154592A2F1303F2E4F14E2925C265659E5154592A2F1303F2E4F14E2925C265659E5154'
+    response = send_and_get_response(prod_config, data)
+
+    # Checks
+    assert data == response, "[ERROR] The response returned by the server is not equals than the request sent."
+
+    time.sleep(2) # wait a bit before to check the db in order to let the server finish the db tasks
+
+    element = prod_config['DB_CLIENT'].events.find_one({"raw_request": data})
+    assert element , 'A new event was expected to be saved at the db containing the request.'
+    assert element['ENCRYPTED_ascii'] == '592A2F1303F2E4F14E2925C265659E5154592A2F1303F2E4F14E2925C265659E5154592A2F1303F2E4F14E2925C265659E5154'
+    # In order to try to not corrupt data on the db, we delete that new created document
+    prod_config['DB_CLIENT'].events.delete_one({"_id": element['_id']})
+
+
+@pytest.mark.e2e
+def test_the_max_length_of_1024(prod_config):
+    # Send the data
+    data = b'\n\xb1\x81005A"THIS-TEST"0014R0L0#0A17D6[592A2F1303F2E4F14E2925C265659E5154592A2F1303F2E4F14E2925C265659E5154592A2F1303F2E4F14E2925C265659E5154592A2F1303F2E4F14E2925C265659E5154592A2F1303F2E4F14E2925C265659E5154592A2F1303F2E4F14E2925C265659E5154592A2F1303F2E4F14E2925C265659E5154592A2F1303F2E4F14E2925C265659E5154592A2F1303F2E4F14E2925C265659E5154592A2F1303F2E4F14E2925C265659E5154592A2F1303F2E4F14E2925C265659E5154592A2F1303F2E4F14E2925C265659E5154592A2F1303F2E4F14E2925C265659E5154592A2F1303F2E4F14E2925C265659E5154592A2F1303F2E4F14E2925C265659E5154592A2F1303F2E4F14E2925C265659E5154592A2F1303F2E4F14E2925C265659E5154592A2F1303F2E4F14E2925C265659E5154592A2F1303F2E4F14E2925C265659E5154592A2F1303F2E4F14E2925C265659E5154592A2F1303F2E4F14E2925C265659E5154592A2F1303F2E4F14E2925C265659E5154592A2F1303F2E4F14E2925C265659E5154592A2F1303F2E4F14E2925C265659E5154592A2F1303F2E4F14E2925C265659E5154592A2F1303F2E4F14E2925C265659E5154592A2F1303F2E4F14E2925C265659E5154592A2F1303F2E4F14E2925C265659E5154592A2F1303F2E4F14E2925C265659E5154592A2F1303F2E4F14E2925C265659E5154592A2F1303F2E4F14E2925C265659E5154'
+    response = send_and_get_response(prod_config, data)
+
+    # Checks
+    assert data != response, "[ERROR] The response returned by the server was expected to be different than the request because the limit set to read 1024 characters by the server."
+
+    time.sleep(2) # wait a bit before to check the db in order to let the server finish the db tasks
+
+    element = prod_config['DB_CLIENT'].events.find_one({"ID_str": 'THIS-TEST'})
+    assert element , 'A new event was expected to be saved at the db containing the request but truncating the last element of the request because the buffer limit set to 1024.'
+    assert element['ENCRYPTED_ascii'] == '592A2F1303F2E4F14E2925C265659E5154592A2F1303F2E4F14E2925C265659E5154592A2F1303F2E4F14E2925C265659E5154592A2F1303F2E4F14E2925C265659E5154592A2F1303F2E4F14E2925C265659E5154592A2F1303F2E4F14E2925C265659E5154592A2F1303F2E4F14E2925C265659E5154592A2F1303F2E4F14E2925C265659E5154592A2F1303F2E4F14E2925C265659E5154592A2F1303F2E4F14E2925C265659E5154592A2F1303F2E4F14E2925C265659E5154592A2F1303F2E4F14E2925C265659E5154592A2F1303F2E4F14E2925C265659E5154592A2F1303F2E4F14E2925C265659E5154592A2F1303F2E4F14E2925C265659E5154592A2F1303F2E4F14E2925C265659E5154592A2F1303F2E4F14E2925C265659E5154592A2F1303F2E4F14E2925C265659E5154592A2F1303F2E4F14E2925C265659E5154592A2F1303F2E4F14E2925C265659E5154592A2F1303F2E4F14E2925C265659E5154592A2F1303F2E4F14E2925C265659E5154592A2F1303F2E4F14E2925C265659E5154592A2F1303F2E4F14E2925C265659E5154592A2F1303F2E4F14E2925C265659E5154592A2F1303F2E4F14E2925C265659E5154592A2F1303F2E4F14E2925C265659E5154592A2F1303F2E4F14E2925C265659E5154592A2F1303F2E4F14E2925C265659E5154592A'
+    # In order to try to not corrupt data on the db, we delete that new created document
+    prod_config['DB_CLIENT'].events.delete_one({"_id": element['_id']})
+
+@pytest.mark.e2e
+def test_server_save_the_client_ip(prod_config):
+    # Send the data
+    data = b'\n:D009F"*ADM-CID"0002R0L0A17D6#000007[212BBAC067455B0DB64B97FEAC433B06'
+    response = send_and_get_response(prod_config, data)
+
+    # Checks
+    assert data == response, "[ERROR] The response returned by the server is not equals than the request sent."
+
+    time.sleep(2) # wait a bit before to check the db in order to let the server finish the db tasks
+
+    import ipdb; ipdb.set_trace(context=21)
+
+    element = prod_config['DB_CLIENT'].events.find_one({"raw_request": data})
+    assert element , 'A new event was expected to be saved at the db containing the request.'
+    assert element['request_ip'], 'The client IP was expected to be included at the DB log.'
+    # In order to try to not corrupt data on the db, we delete that new created document
+    prod_config['DB_CLIENT'].events.delete_one({"_id": element['_id']})
