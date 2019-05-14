@@ -16,6 +16,13 @@ class EchoRequestHandler(SocketServer.BaseRequestHandler):
         self.logger = logging.getLogger('EchoRequestHandler')
         self.logger.debug('__init__')
         self.client_ip = client_address[0]
+
+        # read the config
+        self.config = configparser.ConfigParser()
+        self.config.read(environ['CONF_FILE'])
+
+        self.buffer_size = int( self.config['PROD'].get('BUFFER_SIZE', '1024') )
+
         SocketServer.BaseRequestHandler.__init__(self, request, client_address, server)
         return
 
@@ -31,7 +38,7 @@ class EchoRequestHandler(SocketServer.BaseRequestHandler):
         self.logger.debug('handle')
 
         # read the request
-        data_binary = self.request.recv(1024)
+        data_binary = self.request.recv(self.buffer_size)
 
         self.logger.debug('received -> "%s"', data_binary)
         self.logger.debug('responding back -> "%s"', data_binary)

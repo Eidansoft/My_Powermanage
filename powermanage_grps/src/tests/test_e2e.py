@@ -9,6 +9,9 @@ your data on the db with the tests.
 import pytest
 import socket
 import time
+from random import choice
+from string import ascii_uppercase, digits
+
 
 def send_and_get_response(prod_config, request):
     # Connect to the server
@@ -47,7 +50,7 @@ def test_server_reply_and_process_a_request(prod_config):
 @pytest.mark.e2e
 def test_server_split_properly_the_SEQ(prod_config):
     # Send the data
-    data = b'\n\x8b\x82005A"*VIS-OIP"0001R0L0#0A17D6[94EFEBCFA3A6FC8CFC8B4450AA2996F1'
+    data = b'\n\x8b\x82005A"THIS-TEST"0001R0L0#0A17D6[94EFEBCFA3A6FC8CFC8B4450AA2996F1'
     response = send_and_get_response(prod_config, data)
 
     # Checks
@@ -65,7 +68,7 @@ def test_server_split_properly_the_SEQ(prod_config):
 @pytest.mark.e2e
 def test_server_split_properly_the_ID(prod_config):
     # Send the data
-    data = b'\n\xb1\x81005A"*VIS-OIP"0014R0L0#0A17D6[592A2F1303F2E4F14E2925C265659E5154'
+    data = b'\n\xb1\x81005A"THIS-TEST"0014R0L0#0A17D6[592A2F1303F2E4F14E2925C265659E5154'
     response = send_and_get_response(prod_config, data)
 
     # Checks
@@ -75,7 +78,7 @@ def test_server_split_properly_the_ID(prod_config):
 
     element = prod_config['DB_CLIENT'].events.find_one({"raw_request": data})
     assert element , 'A new event was expected to be saved at the db containing the request.'
-    assert element['ID_str'] == '*VIS-OIP', 'The ID value was not properly processed.'
+    assert element['ID_str'] == 'THIS-TEST', 'The ID value was not properly processed.'
     # In order to try to not corrupt data on the db, we delete that new created document
     prod_config['DB_CLIENT'].events.delete_one({"_id": element['_id']})
 
@@ -83,7 +86,7 @@ def test_server_split_properly_the_ID(prod_config):
 @pytest.mark.e2e
 def test_server_split_properly_the_ENCRYPTED_DATA(prod_config):
     # Send the data
-    data = b'\n\xb1\x81005A"*VIS-OIP"0014R0L0#0A17D6[592A2F1303F2E4F14E2925C265659E5154'
+    data = b'\n\xb1\x81005A"THIS-TEST"0014R0L0#0A17D6[592A2F1303F2E4F14E2925C265659E5154'
     response = send_and_get_response(prod_config, data)
 
     # Checks
@@ -101,7 +104,7 @@ def test_server_split_properly_the_ENCRYPTED_DATA(prod_config):
 @pytest.mark.e2e
 def test_server_split_properly_the_L(prod_config):
     # Send the data
-    data = b'\n:D009F"*ADM-CID"0002R0L0A17D6#000007[212BBAC067455B0DB64B97FEAC433B06'
+    data = b'\n:D009F"THIS-TEST"0002R0L0A17D6#000007[212BBAC067455B0DB64B97FEAC433B06'
     response = send_and_get_response(prod_config, data)
 
     # Checks
@@ -117,52 +120,37 @@ def test_server_split_properly_the_L(prod_config):
 
 
 @pytest.mark.e2e
-def test_the_max_length_of_the_request(prod_config):
+def test_the_max_length_set_at_config(prod_config):
+    # This test needs a special configuration at the config file setting the BUFFER_SIZE
+    # to at least 4096 in order to read all the characters.
     # Send the data
-    data = b'\n\xb1\x81005A"*VIS-OIP"0014R0L0#0A17D6[592A2F1303F2E4F14E2925C265659E5154592A2F1303F2E4F14E2925C265659E5154592A2F1303F2E4F14E2925C265659E5154'
+    random_string = ''.join(choice(ascii_uppercase + digits) for i in range(40 - 37))
+    data = b'\n\xb1\x81005A"THIS-TEST"0014R0L0#0A17D6[' + random_string.encode('utf-8')
     response = send_and_get_response(prod_config, data)
 
     # Checks
-    assert data == response, "[ERROR] The response returned by the server is not equals than the request sent."
-
-    time.sleep(2) # wait a bit before to check the db in order to let the server finish the db tasks
-
-    element = prod_config['DB_CLIENT'].events.find_one({"raw_request": data})
-    assert element , 'A new event was expected to be saved at the db containing the request.'
-    assert element['ENCRYPTED_ascii'] == '592A2F1303F2E4F14E2925C265659E5154592A2F1303F2E4F14E2925C265659E5154592A2F1303F2E4F14E2925C265659E5154'
-    # In order to try to not corrupt data on the db, we delete that new created document
-    prod_config['DB_CLIENT'].events.delete_one({"_id": element['_id']})
-
-
-@pytest.mark.e2e
-def test_the_max_length_of_1024(prod_config):
-    # Send the data
-    data = b'\n\xb1\x81005A"THIS-TEST"0014R0L0#0A17D6[592A2F1303F2E4F14E2925C265659E5154592A2F1303F2E4F14E2925C265659E5154592A2F1303F2E4F14E2925C265659E5154592A2F1303F2E4F14E2925C265659E5154592A2F1303F2E4F14E2925C265659E5154592A2F1303F2E4F14E2925C265659E5154592A2F1303F2E4F14E2925C265659E5154592A2F1303F2E4F14E2925C265659E5154592A2F1303F2E4F14E2925C265659E5154592A2F1303F2E4F14E2925C265659E5154592A2F1303F2E4F14E2925C265659E5154592A2F1303F2E4F14E2925C265659E5154592A2F1303F2E4F14E2925C265659E5154592A2F1303F2E4F14E2925C265659E5154592A2F1303F2E4F14E2925C265659E5154592A2F1303F2E4F14E2925C265659E5154592A2F1303F2E4F14E2925C265659E5154592A2F1303F2E4F14E2925C265659E5154592A2F1303F2E4F14E2925C265659E5154592A2F1303F2E4F14E2925C265659E5154592A2F1303F2E4F14E2925C265659E5154592A2F1303F2E4F14E2925C265659E5154592A2F1303F2E4F14E2925C265659E5154592A2F1303F2E4F14E2925C265659E5154592A2F1303F2E4F14E2925C265659E5154592A2F1303F2E4F14E2925C265659E5154592A2F1303F2E4F14E2925C265659E5154592A2F1303F2E4F14E2925C265659E5154592A2F1303F2E4F14E2925C265659E5154592A2F1303F2E4F14E2925C265659E5154592A2F1303F2E4F14E2925C265659E5154'
-    response = send_and_get_response(prod_config, data)
-
-    # Checks
-    assert data != response, "[ERROR] The response returned by the server was expected to be different than the request because the limit set to read 1024 characters by the server."
+    assert data == response, "[ERROR] The response returned by the server was expected to be the same than the request. Do you configure the server with the BUFFER_SIZE to be at least 4096 ???."
 
     time.sleep(2) # wait a bit before to check the db in order to let the server finish the db tasks
 
     element = prod_config['DB_CLIENT'].events.find_one({"ID_str": 'THIS-TEST'})
     assert element , 'A new event was expected to be saved at the db containing the request but truncating the last element of the request because the buffer limit set to 1024.'
-    assert element['ENCRYPTED_ascii'] == '592A2F1303F2E4F14E2925C265659E5154592A2F1303F2E4F14E2925C265659E5154592A2F1303F2E4F14E2925C265659E5154592A2F1303F2E4F14E2925C265659E5154592A2F1303F2E4F14E2925C265659E5154592A2F1303F2E4F14E2925C265659E5154592A2F1303F2E4F14E2925C265659E5154592A2F1303F2E4F14E2925C265659E5154592A2F1303F2E4F14E2925C265659E5154592A2F1303F2E4F14E2925C265659E5154592A2F1303F2E4F14E2925C265659E5154592A2F1303F2E4F14E2925C265659E5154592A2F1303F2E4F14E2925C265659E5154592A2F1303F2E4F14E2925C265659E5154592A2F1303F2E4F14E2925C265659E5154592A2F1303F2E4F14E2925C265659E5154592A2F1303F2E4F14E2925C265659E5154592A2F1303F2E4F14E2925C265659E5154592A2F1303F2E4F14E2925C265659E5154592A2F1303F2E4F14E2925C265659E5154592A2F1303F2E4F14E2925C265659E5154592A2F1303F2E4F14E2925C265659E5154592A2F1303F2E4F14E2925C265659E5154592A2F1303F2E4F14E2925C265659E5154592A2F1303F2E4F14E2925C265659E5154592A2F1303F2E4F14E2925C265659E5154592A2F1303F2E4F14E2925C265659E5154592A2F1303F2E4F14E2925C265659E5154592A2F1303F2E4F14E2925C265659E5154592A'
+
+    assert element['ENCRYPTED_ascii'] == random_string
     # In order to try to not corrupt data on the db, we delete that new created document
     prod_config['DB_CLIENT'].events.delete_one({"_id": element['_id']})
+
 
 @pytest.mark.e2e
 def test_server_save_the_client_ip(prod_config):
     # Send the data
-    data = b'\n:D009F"*ADM-CID"0002R0L0A17D6#000007[212BBAC067455B0DB64B97FEAC433B06'
+    data = b'\n:D009F"THIS-TEST"0002R0L0A17D6#000007[212BBAC067455B0DB64B97FEAC433B06'
     response = send_and_get_response(prod_config, data)
 
     # Checks
     assert data == response, "[ERROR] The response returned by the server is not equals than the request sent."
 
     time.sleep(2) # wait a bit before to check the db in order to let the server finish the db tasks
-
-    import ipdb; ipdb.set_trace(context=21)
 
     element = prod_config['DB_CLIENT'].events.find_one({"raw_request": data})
     assert element , 'A new event was expected to be saved at the db containing the request.'
